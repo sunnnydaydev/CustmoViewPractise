@@ -3,7 +3,6 @@ package com.sunnyday.administrator.customviewpractise.customviews;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
@@ -16,11 +15,10 @@ import android.view.animation.LinearInterpolator;
  * 贝塞尔曲线--波浪线特效
  */
 public class WaveView extends View {
-    private int width;
-    private  int height;
+    private int width; // view 的宽
+    private  int height; // view的高
     private int baseLine;
 
-    private  int waveHeight = 80;
     private  int waveWidth; // 波长
 
     private float offset;
@@ -52,9 +50,12 @@ public class WaveView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+        // 获得view的最终宽高
         width =w;
         height = h;
-        waveWidth = width;
+
+
+        waveWidth = w;
         baseLine = height/2;
 
         // 播放动画
@@ -95,10 +96,11 @@ public class WaveView extends View {
     }
 
     private int getWaveHeight(int number){
+        int waveHeight = 80;
         if (number%2==0){
-            return baseLine+waveHeight;
+            return baseLine+ waveHeight;
         }else{
-            return baseLine-waveHeight;
+            return baseLine- waveHeight;
         }
     }
 }
