@@ -22,8 +22,6 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentManager manager = getSupportFragmentManager();
         transaction = manager.beginTransaction();
-
-
     }
 
 
