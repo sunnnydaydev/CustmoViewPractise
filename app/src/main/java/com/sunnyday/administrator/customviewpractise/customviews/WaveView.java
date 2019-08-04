@@ -54,7 +54,6 @@ public class WaveView extends View {
         width =w;
         height = h;
 
-
         waveWidth = w;
         baseLine = height/2;
 
@@ -95,6 +94,9 @@ public class WaveView extends View {
         canvas.drawPath(path,paint);
     }
 
+    /**
+     * 根据奇偶性判断控制点高度
+     * */
     private int getWaveHeight(int number){
         int waveHeight = 80;
         if (number%2==0){
