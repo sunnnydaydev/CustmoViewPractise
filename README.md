@@ -2,7 +2,7 @@
 贝塞尔曲线 - 波浪线
 
 ### 效果：
- ![image](https://github.com/sunnnydaydev/CustmoViewPractise/raw/master/picture/wave.png)
+ ![image](https://github.com/sunnnydaydev/CustmoViewPractise/raw/master/picture/wave.gif)
 
 ### 图解：
 
