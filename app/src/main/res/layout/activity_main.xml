@@ -1,26 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context=".MainActivity">
 
     <android.support.v7.widget.AppCompatTextView
-        android:onClick="WaveLine"
-        android:layout_marginTop="10dp"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:layout_width="250dp"
-        android:layout_height="50dp"
-        android:textSize="18sp"
-        android:background="@color/colorAccent"
-        android:text="@string/wave_line" />
+            android:onClick="WaveLine"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:textSize="18sp"
+            android:background="@color/colorAccent"
+            android:text="@string/wave_line" />
 
-  <FrameLayout
-      android:id="@+id/fl_container"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"/>
+    <android.support.v7.widget.AppCompatTextView
+            android:onClick="XiaoMiStopWatch"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:textSize="18sp"
+            android:background="@color/colorAccent"
+            android:text="@string/xiaomi_stop_watch" />
+
+    <FrameLayout
+            android:id="@+id/fl_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
 </LinearLayout>
