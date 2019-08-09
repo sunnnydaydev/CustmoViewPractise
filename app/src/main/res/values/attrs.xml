@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MiStopWatch">
+        <!--  自定义属性      -->
+        <attr name="color_background_color" format="color"/>
+        <attr name="color_light_color" format="color"/>
+        <attr name="color_dark_color" format="color"/>
+        <attr name="clock_textSize" format="dimension"/>
+    </declare-styleable>
+</resources>
