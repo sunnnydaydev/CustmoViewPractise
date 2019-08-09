@@ -42,6 +42,13 @@ public class MiStopWatch extends View {
     private float mCanvasTranslateX;
     private float mCanvasTranslateY;
     private RectF mScaleArcRectF = new RectF();
+    private Path mSecondHandPath = new Path();
+    private Paint mSecondHandPaint;
+    private Paint mMinuteHandPaint;
+    private Paint mHourHandPaint;
+    private Path mMinuteHandPath = new Path();
+    private Path mHourHandPath = new Path();
+
 
     public MiStopWatch(Context context) {
         this(context, null);
@@ -90,17 +97,17 @@ public class MiStopWatch extends View {
         mGradientMatrix = new Matrix();
 
         // 秒指针画笔
-        Paint mSecondHandPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mSecondHandPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mSecondHandPaint.setStyle(Paint.Style.FILL);
         mSecondHandPaint.setColor(mLightColor);
 
         // 分钟指针画笔
-        Paint mMinuteHandPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mMinuteHandPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mMinuteHandPaint.setStyle(Paint.Style.FILL);
         mMinuteHandPaint.setColor(mLightColor);
 
         // 小时指针画笔
-        Paint mHourHandPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mHourHandPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mHourHandPaint.setStyle(Paint.Style.FILL);
         mHourHandPaint.setColor(mDarkColor);
     }
@@ -160,7 +167,82 @@ public class MiStopWatch extends View {
         getCurrentTime();
         drawOutsideArc();
         drawScaleLine();
+        drawSecondNeedle();
+        drawMinuteNeedle();
+        drawHourHand();
+        invalidate(); // 通知重绘（一直调用draw ）
+    }
 
+    /**
+     * 绘制时针
+     */
+    private void drawHourHand() {
+        mCanvas.save();
+        mCanvas.translate(mCanvasTranslateX * 1.2f, mCanvasTranslateY * 1.2f);
+        mCanvas.rotate(mHourDegree, getWidth() / 2, getHeight() / 2);
+        mHourHandPath.reset();
+        float offset = mPaddingTop + mTextRect.height() / 2;
+        mHourHandPath.moveTo(getWidth() / 2 - 0.018f * mRadius, getHeight() / 2 - 0.03f * mRadius);
+        mHourHandPath.lineTo(getWidth() / 2 - 0.009f * mRadius, offset + 0.48f * mRadius);
+        mHourHandPath.quadTo(getWidth() / 2, offset + 0.46f * mRadius,
+                getWidth() / 2 + 0.009f * mRadius, offset + 0.48f * mRadius);
+        mHourHandPath.lineTo(getWidth() / 2 + 0.018f * mRadius, getHeight() / 2 - 0.03f * mRadius);
+        mHourHandPath.close();
+        mHourHandPaint.setStyle(Paint.Style.FILL);
+        mCanvas.drawPath(mHourHandPath, mHourHandPaint);
+
+        mCircleRectF.set(getWidth() / 2 - 0.03f * mRadius, getHeight() / 2 - 0.03f * mRadius,
+                getWidth() / 2 + 0.03f * mRadius, getHeight() / 2 + 0.03f * mRadius);
+        mHourHandPaint.setStyle(Paint.Style.STROKE);
+        mHourHandPaint.setStrokeWidth(0.01f * mRadius);
+        mCanvas.drawArc(mCircleRectF, 0, 360, false, mHourHandPaint);
+        mCanvas.restore();
+    }
+    /**
+     * 绘制分针
+     */
+    private void drawMinuteNeedle() {
+        mCanvas.save();
+        mCanvas.translate(mCanvasTranslateX * 2f, mCanvasTranslateY * 2f);
+        mCanvas.rotate(mMinuteDegree, getWidth() / 2, getHeight() / 2);
+        mMinuteHandPath.reset();
+
+        float offset = mPaddingTop + mTextRect.height() / 2;
+        mMinuteHandPath.moveTo(getWidth() / 2 - 0.01f * mRadius, getHeight() / 2 - 0.03f * mRadius);
+        mMinuteHandPath.lineTo(getWidth() / 2 - 0.008f * mRadius, offset + 0.365f * mRadius);
+        mMinuteHandPath.quadTo(getWidth() / 2, offset + 0.345f * mRadius,
+                getWidth() / 2 + 0.008f * mRadius, offset + 0.365f * mRadius);
+        mMinuteHandPath.lineTo(getWidth() / 2 + 0.01f * mRadius, getHeight() / 2 - 0.03f * mRadius);
+        mMinuteHandPath.close();
+        mMinuteHandPaint.setStyle(Paint.Style.FILL);
+        mCanvas.drawPath(mMinuteHandPath, mMinuteHandPaint);
+
+        mCircleRectF.set(getWidth() / 2 - 0.03f * mRadius, getHeight() / 2 - 0.03f * mRadius,
+                getWidth() / 2 + 0.03f * mRadius, getHeight() / 2 + 0.03f * mRadius);
+        mMinuteHandPaint.setStyle(Paint.Style.STROKE);
+        mMinuteHandPaint.setStrokeWidth(0.02f * mRadius);
+        mCanvas.drawArc(mCircleRectF, 0, 360, false, mMinuteHandPaint);
+        mCanvas.restore();
+    }
+
+    /**
+     * 秒针
+     * view中的三角形
+     */
+    private void drawSecondNeedle() {
+        mCanvas.save();
+        mCanvas.rotate(mSecondDegree, getWidth() / 2, getHeight() / 2);
+        mSecondHandPath.reset();
+        float offset = mPaddingTop + mTextRect.height() / 2;
+
+        // 三角形的path绘制
+        mSecondHandPath.moveTo(getWidth() / 2, offset + 0.26f * mRadius);
+        mSecondHandPath.lineTo(getWidth() / 2 - 0.05f * mRadius, offset + 0.34f * mRadius);
+        mSecondHandPath.lineTo(getWidth() / 2 + 0.05f * mRadius, offset + 0.34f * mRadius);
+        mSecondHandPath.close();
+        mSecondHandPaint.setColor(mLightColor);
+        mCanvas.drawPath(mSecondHandPath, mSecondHandPaint);
+        mCanvas.restore();
     }
 
     /**
@@ -208,7 +290,6 @@ public class MiStopWatch extends View {
         mSecondDegree = second / 60 * 360;//秒针角度
         mMinuteDegree = minute / 60 * 360;  //分针角度
         mHourDegree = hour / 12 * 360; //时针角度
-
 
 
     }
