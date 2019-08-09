@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.*;
 import android.util.AttributeSet;
-import android.view.FocusFinder;
 import android.view.View;
 import com.sunnyday.administrator.customviewpractise.R;
 import com.sunnyday.administrator.customviewpractise.utils.DensityUtils;
@@ -29,7 +28,7 @@ public class MiStopWatch extends View {
     private Matrix mGradientMatrix;
     private float mRadius;
     private float mPaddingLeft;
-    private float mPaddngRight;
+    private float mPaddingRight;
     private float mPaddingTop;
     private float mPaddingBottom;
     private float mScaleLength;
@@ -40,6 +39,9 @@ public class MiStopWatch extends View {
     private float mHourDegree;
     private Rect mTextRect = new Rect();
     RectF mCircleRectF = new RectF();
+    private float mCanvasTranslateX;
+    private float mCanvasTranslateY;
+    private RectF mScaleArcRectF = new RectF();
 
     public MiStopWatch(Context context) {
         this(context, null);
@@ -69,7 +71,7 @@ public class MiStopWatch extends View {
         mTextPaint.setTextAlign(Paint.Align.CENTER);//文字居中
         mTextPaint.setTextSize(mTextSize);//文字大小
 
-        // 小圆圈画笔
+        // 小时圆圈画笔，（最外层圆弧的圆）
         mCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mCirclePaint.setStyle(Paint.Style.STROKE);
         mCirclePaint.setStrokeWidth(mCircleStrokeWidth);
@@ -135,7 +137,7 @@ public class MiStopWatch extends View {
 
         // 给view添加 padding
         mPaddingLeft = mDefaultPadding + w / 2 - mRadius + getPaddingLeft();
-        mPaddngRight = mDefaultPadding + w / 2 - mRadius + getPaddingRight();
+        mPaddingRight = mDefaultPadding + w / 2 - mRadius + getPaddingRight();
         mPaddingTop = mDefaultPadding + h / 2 - mRadius + getPaddingTop();
         mPaddingBottom = mDefaultPadding + h / 2 - mRadius + getPaddingBottom();
 
@@ -157,29 +159,41 @@ public class MiStopWatch extends View {
         mCanvas.drawColor(mContext.getResources().getColor(R.color.orange));
         getCurrentTime();
         drawOutsideArc();
+        drawScaleLine();
+
     }
 
     /**
-     * 画最外层的时间（文本内容：12-3-6-9）及外层四段圆弧
+     * 绘制暗色的刻度圆弧，上面覆盖一圈背景色的刻度线。
+     * 重绘时不断旋转
      */
-    private void drawOutsideArc() {
-        String[] timeList = new String[]{"12", "3", "6", "9"};
-        mTextPaint.getTextBounds(timeList[1], 0, timeList[1].length(), mTextRect);
-        mCircleRectF.set(mPaddingLeft + mTextRect.width() / 2 + mCircleStrokeWidth / 2,
-                mPaddingTop + mTextRect.height() / 2 + mCircleStrokeWidth / 2,
-                getWidth() - mPaddngRight - mTextRect.width() / 2 - mCircleStrokeWidth / 2,
-                getHeight() - mPaddingBottom - mTextRect.height() / 2 - mCircleStrokeWidth / 2);
+    private void drawScaleLine() {
+        mCanvas.save();
+        mCanvas.translate(mCanvasTranslateX, mCanvasTranslateY);
+        // 刻度圆弧的外接矩形
+        mScaleArcRectF.set(mPaddingLeft + 1.5f * mScaleLength + mTextRect.height() / 2,
+                mPaddingTop + 1.5f * mScaleLength + mTextRect.height() / 2,
+                getWidth() - mPaddingRight - mTextRect.height() / 2 - 1.5f * mScaleLength,
+                getHeight() - mPaddingBottom - mTextRect.height() / 2 - 1.5f * mScaleLength
+        );
 
-        mCanvas.drawText(timeList[0], getWidth() / 2, mCircleRectF.top + mTextRect.height() / 2, mTextPaint);// 12
-        mCanvas.drawText(timeList[1], mCircleRectF.right, getHeight() / 2 + mTextRect.height() / 2, mTextPaint);// 3
-        mCanvas.drawText(timeList[2], getWidth() / 2, mCircleRectF.bottom + mTextRect.height() / 2, mTextPaint);// 6
-        mCanvas.drawText(timeList[3], mCircleRectF.left, getHeight() / 2 + mTextRect.height() / 2, mTextPaint);// 9
+        mGradientMatrix.setRotate(mSecondDegree - 90, getWidth() / 2, getHeight() / 2);
+        mSweepGradient.setLocalMatrix(mGradientMatrix);
 
-        // 画四条圆弧
-        for (int i = 0; i < 4; i++) {
-            mCanvas.drawArc(mCircleRectF,5+90*i,80,false,mCirclePaint);
+        // 设置梯队渐变  设置梯队渐变   设置梯队渐变
+        mScaleArcPaint.setShader(mSweepGradient);
+        // 绘制渐变色的圆弧（由暗变亮 扫描的角度由计算得到可以自定义）
+        mCanvas.drawArc(mScaleArcRectF, 0, 360, false, mScaleArcPaint);
+
+        //画背景色刻度线
+        for (int i = 0; i < 200; i++) {
+            mCanvas.drawLine(getWidth() / 2, mPaddingTop + mScaleLength + mTextRect.height() / 2,
+                    getWidth() / 2, mPaddingTop + 2 * mScaleLength + mTextRect.height() / 2, mScaleLinePaint);
+            mCanvas.rotate(1.8f, getWidth() / 2, getHeight() / 2);
         }
+        mCanvas.restore();
     }
+
 
     /**
      * 获得当前时间
@@ -195,5 +209,33 @@ public class MiStopWatch extends View {
         mMinuteDegree = minute / 60 * 360;  //分针角度
         mHourDegree = hour / 12 * 360; //时针角度
 
+
+
     }
+
+    /**
+     * 画最外层的时间（文本内容：12-3-6-9）及外层四段圆弧
+     */
+    private void drawOutsideArc() {
+        String[] timeList = new String[]{"12", "3", "6", "9"};
+        mTextPaint.getTextBounds(timeList[1], 0, timeList[1].length(), mTextRect);
+
+        // 圆弧的矩形
+        mCircleRectF.set(mPaddingLeft + mTextRect.width() / 2 + mCircleStrokeWidth / 2,
+                mPaddingTop + mTextRect.height() / 2 + mCircleStrokeWidth / 2,
+                getWidth() - mPaddingRight - mTextRect.width() / 2 - mCircleStrokeWidth / 2,
+                getHeight() - mPaddingBottom - mTextRect.height() / 2 - mCircleStrokeWidth / 2);
+
+        // 四个数字
+        mCanvas.drawText(timeList[0], getWidth() / 2, mCircleRectF.top + mTextRect.height() / 2, mTextPaint);// 12
+        mCanvas.drawText(timeList[1], mCircleRectF.right, getHeight() / 2 + mTextRect.height() / 2, mTextPaint);// 3
+        mCanvas.drawText(timeList[2], getWidth() / 2, mCircleRectF.bottom + mTextRect.height() / 2, mTextPaint);// 6
+        mCanvas.drawText(timeList[3], mCircleRectF.left, getHeight() / 2 + mTextRect.height() / 2, mTextPaint);// 9
+        // 画四条圆弧
+        for (int i = 0; i < 4; i++) {
+            mCanvas.drawArc(mCircleRectF, 5 + 90 * i, 80, false, mCirclePaint);
+        }
+    }
+
+
 }
